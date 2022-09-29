@@ -1,6 +1,6 @@
 import RLogin, { RLoginButton } from '@rsksmart/rlogin'
 import { useState } from 'react'
-import { providers, Contract, BigNumber, ContractTransaction, ContractReceipt } from 'ethers'
+import { providers, Contract, BigNumber, ContractTransaction, ContractReceipt, utils } from 'ethers'
 import { ServiceAgreement } from '@paid-cloud/contracts/typechain-types/ServiceAgreement'
 import ServiceAgreementData from '@paid-cloud/contracts/artifacts/contracts/ServiceAgreement.sol/ServiceAgreement.json'
 import { cost, getCurrentPeriod } from '@paid-cloud/contracts/lib'
@@ -28,6 +28,7 @@ export const rLogin = new RLogin({
 function App() {
   const [serviceAgreement, setServiceAgreement] = useState<ServiceAgreement>()
   const [address, setAddress] = useState('')
+  const [balance, setBalance] = useState<BigNumber>()
 
   const [authKeys, setAuthKeys] = useState<{ accessToken: string, refreshToken: string }>()
 
@@ -64,8 +65,8 @@ function App() {
 
     setServiceAgreement(serviceAgreement)
 
-    const address = await signer.getAddress()
-    setAddress(address)
+    setAddress(await signer.getAddress())
+    setBalance(await signer.getBalance())
 
     await getLastPeriods(serviceAgreement)
   }
@@ -101,7 +102,6 @@ function App() {
   }
 
   const setContent = async () => {
-    console.log(value)
     await fetch(`http://localhost:3001/${key}`, {
       method: 'POST',
       body: value,
@@ -114,7 +114,7 @@ function App() {
 
   return <div style={{ padding: 50, textAlign: 'center' }}>
     <RLoginButton onClick={login} disabled={!!serviceAgreement}>login</RLoginButton>
-    <p>{address}</p>
+    {address && balance && <p>{address} - {utils.formatEther(balance)} RBTC</p>}
     <h1>Paid cloud</h1>
     <div style={{ display: 'table', width: '100%' }}>
       <div style={{ display: 'table-row' }}>
