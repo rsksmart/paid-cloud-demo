@@ -42,6 +42,8 @@ function App() {
   const [currentValue, setCurrentValue] = useState('')
   const [value, setValue] = useState('')
 
+  const [error, setError] = useState<Error>()
+
   const hasPaidPeriod = async (serviceAgreement: ServiceAgreement, period: BigNumber) => serviceAgreement.hasPaidPeriod(
     await serviceAgreement.signer.getAddress(),
     period
@@ -72,50 +74,51 @@ function App() {
   }
 
   const payMonth = async (period: BigNumber) => {
-    const tx = await serviceAgreement!.payPeriod(address, period, { value: cost })
-    setTx(tx)
+    try {
+      const tx = await serviceAgreement!.payPeriod(address, period, { value: cost })
+      setTx(tx)
 
-    const receipt = await tx.wait()
-    setReceipt(receipt)
+      const receipt = await tx.wait()
+      setReceipt(receipt)
 
-    await getLastPeriods(serviceAgreement!)
+      await getLastPeriods(serviceAgreement!)
+    } catch (e: any) {
+      setError(e)
+    }
   }
 
-  const payThisMonth = () => {
-    const thisPeriod = getCurrentPeriod()
-    return payMonth(thisPeriod)
-  }
+  const payThisMonth = () => payMonth(getCurrentPeriod())
+  const payNextMonth = () => payMonth(getCurrentPeriod().add(1))
 
-  const payNextMonth = async () => {
-    const nextPeriod = getCurrentPeriod().add(1)
-    return payMonth(nextPeriod)
-  }
-
-  const getContent = async () => {
-    const content = await fetch(`http://localhost:3001/${key}`, {
+  const getContent = () => fetch(`http://localhost:3001/${key}`, {
       method: 'GET',
       headers: {
         'Authorization': `DIDAuth ${authKeys!.accessToken}`
       }
+    }).then(res => {
+      if (!res.ok) throw new Error(`error: ${res.status.toString()}`)
+      return res.text()
     })
-    setCurrentValue(await content.text())
-  }
+      .then(setCurrentValue)
+      .catch(setError)
 
-  const setContent = async () => {
-    await fetch(`http://localhost:3001/${key}`, {
+  const setContent = () => fetch(`http://localhost:3001/${key}`, {
       method: 'POST',
       body: value,
       headers: {
         'Authorization': `DIDAuth ${authKeys!.accessToken}`
       }
+    }).then(res => {
+      if (!res.ok) throw new Error(`error: ${res.status.toString()}`)
+      return getContent()
     })
-    await getContent()
-  }
+      .catch(setError)
 
   return <div style={{ padding: 50, textAlign: 'center' }}>
     <RLoginButton onClick={login} disabled={!!serviceAgreement}>login</RLoginButton>
     {address && balance && <p>{address} - {utils.formatEther(balance)} RBTC</p>}
     <h1>Paid cloud</h1>
+    {error && <label>{error.message}</label>}
     <div style={{ display: 'table', width: '100%' }}>
       <div style={{ display: 'table-row' }}>
         <div style={{ display: 'table-cell', minWidth: 300 }}>
