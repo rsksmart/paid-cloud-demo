@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-import "hardhat/console.sol";
-
 /// @title Service Agreemnt
 /// @author Ilan Olkies
 /// @notice You can use this contract to enforce payments in periods of time
@@ -20,7 +18,7 @@ contract ServiceAgreement {
     /// @dev Only exact payments, only once per period
     /// @param period Expressed in 30 days. Use now % 30 days
     function payPeriod(address user, uint period) external payable {
-        require(msg.value == 0.1 ether, "Pay exactly 0.1 ETH");
+        require(msg.value == 0.00001 ether, "Pay exactly 0.00001 ETH");
         require(!hasPaidPeriod[user][period], "Period already paid");
         hasPaidPeriod[user][period] = true;
         emit PeriodPaid(user, period);

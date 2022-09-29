@@ -1,7 +1,21 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "setup": "npx lerna bootstrap && npx lerna run build",
+    "test": "npx lerna run test",
+    "start:node": "npx lerna exec --scope=@paid-cloud/contracts -- npm run node",
+    "run:deploy": "npx lerna exec --scope=@paid-cloud/contracts -- npm run deploy",
+    "run:pay": "npx lerna exec --scope=@paid-cloud/contracts -- npm run pay",
+    "run:transfer": "npx lerna exec --scope=@paid-cloud/contracts -- npm run transfer",
+    "start:server": "npx lerna exec --scope=@paid-cloud/server -- npm run start",
+    "start:client": "npx lerna exec --scope=@paid-cloud/client -- npm run start"
+  },
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.0"
   }
 }

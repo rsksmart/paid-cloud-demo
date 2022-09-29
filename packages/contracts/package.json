@@ -1,13 +1,15 @@
 {
-  "name": "contracts",
+  "name": "@paid-cloud/contracts",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "hardhat test",
-    "build": "hardhat compile",
-    "node": "hardhat node",
-    "deploy": "hardhat run scripts/deploy.ts"
+    "test": "npx hardhat test",
+    "build": "npx hardhat compile",
+    "node": "npx hardhat node",
+    "deploy": "npx hardhat run --network localhost scripts/deploy.ts",
+    "pay": "npx hardhat run --network localhost scripts/payRandomPeriod.ts",
+    "transfer": "npx hardhat run --network localhost scripts/transferTo.ts"
   },
   "author": "",
   "license": "ISC",
