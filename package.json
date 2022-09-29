@@ -12,7 +12,7 @@
     "start:client": "npx lerna exec --scope=@paid-cloud/client -- npm run start"
   },
   "devDependencies": {
-    "lerna": "^4.0.0",
+    "lerna": "^5.5.4",
     "nodemon": "^2.0.20"
   },
   "dependencies": {
