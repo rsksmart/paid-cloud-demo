@@ -8,14 +8,21 @@ import { SimpleSigner } from 'did-jwt'
 import { providers } from 'ethers'
 import { ServiceAgreement__factory } from '@paid-cloud/contracts/typechain-types/factories/ServiceAgreement__factory'
 
+import TelegramBot from 'node-telegram-bot-api'
+
+// Config
+require('dotenv').config()
+
+const privateKey = process.env.PRIVATE_KEY as string
+const serviceDid = process.env.DID as string
+const token = process.env.TELEGRAM_BOT_TOKEN as string
+
 // Express setup
 const app = express()
 app.use(cors())
 app.use(bodyParser.text())
 
 // Express DID Auth setup
-const privateKey = 'c9000722b8ead4ad9d7ea7ef49f2f3c1d82110238822b7191152fbc4849e1891'
-const serviceDid = 'did:ethr:rsk:0x8f4438b78c56B48d9f47c6Ca1be9B69B6fAF9dDa'
 const serviceSigner = SimpleSigner(privateKey) as any
 const challengeSecret = 'theSuperSecret'
 const serviceUrl = 'http://localhost:3001'
@@ -45,11 +52,22 @@ const validatePayment = (req: Request, res: Response) => {
   })
 }
 
+// Bot setup
+const bot = new TelegramBot(token, {polling: true});
+
+// store chat id
+let chatId = 0
+
+bot.onText(/\/start/, (msg: any) => {
+  chatId = msg.chat.id;
+  bot.sendMessage(chatId, 'ok');
+});
+
 const main = async () => {
   // listen event PeriodPaid
   serviceAgreement.on('PeriodPaid', (user, period) => {
-      console.log('Period paid', user, period)
-    })
+    bot.sendMessage(chatId, `${user} paid period ${period}`)
+  })
 
   app.route('/:key')
     .get(authMiddleware, (req, res) => {
