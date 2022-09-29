@@ -1,6 +1,11 @@
-import RLogin, { RLoginButton } from '@rsksmart/rlogin'
 import { useState } from 'react'
+
+import RLogin, { RLoginButton } from '@rsksmart/rlogin'
+import { ledgerProviderOptions } from '@rsksmart/rlogin-ledger-provider'
+import { trezorProviderOptions } from '@rsksmart/rlogin-trezor-provider'
+
 import { providers, Contract, BigNumber, ContractTransaction, ContractReceipt, utils } from 'ethers'
+
 import { ServiceAgreement } from '@paid-cloud/contracts/typechain-types/ServiceAgreement'
 import ServiceAgreementData from '@paid-cloud/contracts/artifacts/contracts/ServiceAgreement.sol/ServiceAgreement.json'
 import { cost, getCurrentPeriod } from '@paid-cloud/contracts/lib'
@@ -19,6 +24,16 @@ const infoOptions = {
 }
 
 export const rLogin = new RLogin({
+  providerOptions: {
+    'custom-ledger': ledgerProviderOptions,
+    'custom-trezor': {
+      ...trezorProviderOptions,
+      options: {
+        manifestEmail: 'info@iovlabs.org',
+        manifestAppUrl: 'http://localhost:3000/',
+      }
+    }
+  },
   backendUrl,
   rpcUrls,
   supportedChains,
@@ -57,6 +72,7 @@ function App() {
 
   const login = async () => {
     const { provider, authKeys } = await rLogin.connect()
+    console.log(authKeys)
     setAuthKeys(authKeys)
     const signer = new providers.Web3Provider(provider).getSigner()
     const serviceAgreement = new Contract(

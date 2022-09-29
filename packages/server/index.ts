@@ -66,12 +66,14 @@ bot.onText(/\/start/, (msg: any) => {
 const main = async () => {
   // listen event PeriodPaid
   serviceAgreement.on('PeriodPaid', (user, period) => {
+    console.log(user, period)
     bot.sendMessage(chatId, `${user} paid period ${period}`)
   })
 
   app.route('/:key')
     .get(authMiddleware, (req, res) => {
       const user = extractDID(req)
+      console.log(user)
       validatePayment(req, res).then(() => {
         if (!db[user]) return res.status(200).send(null)
         console.log(user, req.params.key)
